@@ -31,28 +31,8 @@ jobs:
           name: DocuPanda_Windows
           path: DocuPanda_Windows.zip
 
-  build-macos:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-      - run: |
-          pip install --upgrade pip
-          pip install flet
-      - run: flet build macos
-      - run: |
-          cd build/macos
-          zip -r ../../DocuPanda_macOS.zip *.app
-          cd ../..
-      - uses: actions/upload-artifact@v4
-        with:
-          name: DocuPanda_macOS
-          path: DocuPanda_macOS.zip
-
   create-or-update-release:
-    needs: [build-windows, build-macos]
+    needs: [build-windows]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -61,11 +41,6 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: DocuPanda_Windows
-          path: release_assets/
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: DocuPanda_macOS
           path: release_assets/
 
       # Delete existing "latest" release and tag if they exist (to overwrite)
@@ -88,6 +63,5 @@ jobs:
           name: "DocuPanda latest"
           files: |
             release_assets/DocuPanda_Windows.zip
-            release_assets/DocuPanda_macOS.zip
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
