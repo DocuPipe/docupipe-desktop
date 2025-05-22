@@ -72,7 +72,7 @@ Downloading the dataset will give you the following things:
 
 ```bash
 git clone git@github.com:urimerhav/docupipe-desktop.git
-cd docupanda-desktop
+cd docupipe-desktop
 pip install -e .
 flet run src/main.py
 ```

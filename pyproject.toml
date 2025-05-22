@@ -13,7 +13,7 @@ dependencies = [
 ]
 
 [tool.flet]
-org = "com.docupanda"
+org = "com.docupipe"
 product = "DocuPanda"
 company = "DocuPanda"
 copyright = "Copyright (C) 2025 by DopcuPanda"
