@@ -261,7 +261,11 @@ def main(page: ft.Page):
     # --------------------------------------------------------------------
     #  UPLOAD: show dialog for dataset name & schema
     # --------------------------------------------------------------------
-    dataset_name_field = ft.TextField(label="Dataset Name", width=300)
+    dataset_name_autocomplete = ft.AutoComplete(
+
+        suggestions=[],
+        on_select=lambda e: None,
+    )
     schema_dropdown = ft.Dropdown(
         label="Optional: choose a schema",
         options=[],
@@ -272,7 +276,7 @@ def main(page: ft.Page):
         page.close(dialog)
 
     def handle_confirm(dialog, e, folder_path, file_count):
-        chosen_name = dataset_name_field.value.strip()
+        chosen_name = dataset_name_autocomplete.value.strip()
         chosen_schema = schema_dropdown.value or None
         page.close(dialog)
 
@@ -294,7 +298,7 @@ def main(page: ft.Page):
         threading.Thread(target=do_upload, daemon=True).start()
 
     def open_folder_dialog(folder_path, allowed_count, total_file_count):
-        dataset_name_field.value = ""
+        dataset_name_autocomplete.value = ""
         schema_dropdown.value = ""
         schema_dropdown.options = []
         schema_dropdown.visible = False
@@ -309,7 +313,8 @@ def main(page: ft.Page):
                         f"Folder selected: {folder_path}\nDetected {total_file_count} files of which {allowed_count} are supported "
                         f"file types."),
                     ft.Text("Please provide a dataset name (required):"),
-                    dataset_name_field,
+                    ft.Column(width=400, controls=[dataset_name_autocomplete]),
+                    ft.Divider(),
                     ft.Text("Optionally, standardize each document with a schema below:"),
                     schema_dropdown,
                     ft.ProgressRing(visible=True),  # indicates we are fetching schemas
@@ -325,7 +330,15 @@ def main(page: ft.Page):
                 ),
             ],
         )
-        page.open(dlg)
+        # Fetch dataset names for autocomplete
+        def fetch_dataset_names():
+            latest_key = get_latest_api_key()
+            names = list_dataset_names(latest_key)
+            dataset_name_autocomplete.suggestions = [
+                ft.AutoCompleteSuggestion(key=name, value=name)
+                for name in names
+            ]
+            page.update()
 
         def fetch_schemas():
             latest_key = get_latest_api_key()
@@ -339,11 +352,14 @@ def main(page: ft.Page):
             page.update()
 
         threading.Thread(target=fetch_schemas, daemon=True).start()
+        threading.Thread(target=fetch_dataset_names, daemon=True).start()
+        page.open(dlg)
 
     def pick_folder_result(e: ft.FilePickerResultEvent):
         if e.path:
             # Clear previous logs only if starting a new upload
             clear_progress_text()
+            dataset_name_autocomplete.value = ""
 
             folder_path = Path(e.path)
 
@@ -517,5 +533,5 @@ def main(page: ft.Page):
 
 # IMPORTANT: Provide both assets_dir and icon to ensure the icon is visible.
 ft.app(
-    target=main,
+    target=main
 )
