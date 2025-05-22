@@ -14,7 +14,7 @@ from dp_desktop.list_objects import list_schemas, list_dataset_names
 from dp_desktop.upload import upload_files
 from dp_desktop.utils import get_files
 
-APP_NAME = "DocuPanda"
+APP_NAME = "DocuPipe"
 
 
 ###############################################################################

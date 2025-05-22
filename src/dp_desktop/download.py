@@ -115,7 +115,7 @@ def download_dataset(
 
 def list_documents(api_key: str, dataset_name: str):
     """
-    List all documents for the specified dataset from DocuPanda (paginated).
+    List all documents for the specified dataset from DocuPipe (paginated).
     Returns a list of Document objects.
     """
     logging.info(f"Listing all documents for dataset='{dataset_name}'")

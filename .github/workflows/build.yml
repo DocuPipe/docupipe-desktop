@@ -1,4 +1,4 @@
-name: Build & Release DocuPanda
+name: Build & Release DocuPipe
 
 on:
   push:
@@ -60,7 +60,7 @@ jobs:
           draft: false
           prerelease: false
           tag_name: latest
-          name: "DocuPanda latest"
+          name: "DocuPipe latest"
           files: |
             release_assets/DocuPanda_Windows.zip
         env:

@@ -114,7 +114,7 @@ bash build.sh
 ## 🙋‍♂️ Need Help?
 
 - Review your logs first
-- Reach out to [DocuPanda Support](https://www.docupipe.ai/support) with logs for swift assistance
+- Reach out to [DocuPipe Support](https://www.docupipe.ai/support) with logs for swift assistance
 
 ---
 
