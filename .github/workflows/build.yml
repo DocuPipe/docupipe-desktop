@@ -1,0 +1,93 @@
+name: Build & Release DocuPanda
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write  # Allows workflow to manage releases/assets
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - run: |
+          pip install --upgrade pip
+          pip install flet
+      - run: |
+          chcp 65001
+          flet build windows
+        env:
+          PYTHONUTF8: '1'
+      - run: Compress-Archive -Path build\windows\* -DestinationPath DocuPanda_Windows.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: DocuPanda_Windows
+          path: DocuPanda_Windows.zip
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - run: |
+          pip install --upgrade pip
+          pip install flet
+      - run: flet build macos
+      - run: |
+          cd build/macos
+          zip -r ../../DocuPanda_macOS.zip *.app
+          cd ../..
+      - uses: actions/upload-artifact@v4
+        with:
+          name: DocuPanda_macOS
+          path: DocuPanda_macOS.zip
+
+  create-or-update-release:
+    needs: [build-windows, build-macos]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Download artifacts to upload them to the release
+      - uses: actions/download-artifact@v4
+        with:
+          name: DocuPanda_Windows
+          path: release_assets/
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: DocuPanda_macOS
+          path: release_assets/
+
+      # Delete existing "latest" release and tag if they exist (to overwrite)
+      - name: Delete existing 'latest' release (if exists)
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        run: |
+          release_id=$(gh release view latest --json id -q .id || echo "")
+          if [ -n "$release_id" ]; then
+            gh release delete latest --yes
+            git push --delete origin latest || true
+          fi
+
+      # Create new release tagged as "latest"
+      - uses: softprops/action-gh-release@v2
+        with:
+          draft: false
+          prerelease: false
+          tag_name: latest
+          name: "DocuPanda latest"
+          files: |
+            release_assets/DocuPanda_Windows.zip
+            release_assets/DocuPanda_macOS.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
