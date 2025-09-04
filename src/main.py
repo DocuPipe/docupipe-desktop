@@ -509,7 +509,6 @@ def main(page: ft.Page):
         alignment="center",
         visible=False,
     )
-
     # --------------------------------------------------------------------
     #  Toggle between config and main
     # --------------------------------------------------------------------
@@ -533,5 +532,5 @@ def main(page: ft.Page):
 
 # IMPORTANT: Provide both assets_dir and icon to ensure the icon is visible.
 ft.app(
-    target=main
+    target=main,
 )
